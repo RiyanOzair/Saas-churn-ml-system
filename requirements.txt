@@ -9,3 +9,5 @@ fastapi
 uvicorn
 pyyaml
 python-dotenv
+setuptools
+# -e .
