@@ -1,0 +1,928 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .container-main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    /* Page Title */
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: #666666;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        font-weight: 400;
+    }
+
+    /* KPI Cards - Single Row */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .kpi-card:hover {
+        border-color: #0066cc;
+        background: #f9f9f9;
+    }
+
+    .kpi-label {
+        font-size: 0.7rem;
+        color: #999999;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.75rem;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #0066cc;
+    }
+
+    /* Main Content Section */
+    .content-section {
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* Chart Container */
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-bottom: 2rem;
+        background: #f9f9f9;
+        border-radius: 6px;
+        padding: 1rem;
+    }
+
+    /* Form Grid */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .form-section-block {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-block:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #666666;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-row.single {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Result Alert */
+    .hidden {
+        display: none !important;
+    }
+
+    .result-card {
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .result-badge.success {
+        background-color: #e8f5e9;
+        color: #28a745;
+    }
+
+    .result-badge.danger {
+        background-color: #ffebee;
+        color: #dc3545;
+    }
+
+    .result-probability {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+
+    .result-probability.safe {
+        color: #28a745;
+    }
+
+    .result-probability.risk {
+        color: #dc3545;
+    }
+
+    .progress-bar-custom {
+        width: 100%;
+        height: 8px;
+        background: #e5e5e5;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1.5rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.4s ease;
+    }
+
+    .recommendation-box {
+        background: #f9f9f9;
+        border-left: 4px solid;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-top: 1.5rem;
+    }
+
+    .recommendation-box.safe {
+        border-left-color: #28a745;
+        background: #f0f8f5;
+    }
+
+    .recommendation-box.risk {
+        border-left-color: #dc3545;
+        background: #fef5f5;
+    }
+
+    /* Table Styles */
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .history-table thead {
+        background: #f9f9f9;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .history-table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #666666;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.3px;
+    }
+
+    .history-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .history-table tbody tr:hover {
+        background: #f9f9f9;
+    }
+
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .status-safe {
+        background: #e8f5e9;
+        color: #28a745;
+    }
+
+    .status-risk {
+        background: #ffebee;
+        color: #dc3545;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .content-section {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="container-main">
+
+<!-- Page Header -->
+<div style="margin-bottom: 2rem;">
+    <h1 class="page-title">Customer Churn Analytics</h1>
+    <p class="page-subtitle">Predict customer churn with machine learning</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div>
+            <div class="kpi-label">Total Predictions</div>
+            <div class="kpi-value" id="kpiTotal">0</div>
+        </div>
+        <div class="kpi-icon">
+            <i class="fas fa-chart-bar"></i>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <div class="kpi-label">Avg Churn Risk</div>
+            <div class="kpi-value" id="kpiAvgChurn">0%</div>
+        </div>
+        <div class="kpi-icon">
+            <i class="fas fa-percent"></i>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <div class="kpi-label">Latest Result</div>
+            <div class="kpi-value" id="kpiLatest">â€”</div>
+        </div>
+        <div class="kpi-icon">
+            <i class="fas fa-bolt"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Grid -->
+<div class="dashboard-grid">
+
+
+    <!-- Left: Prediction Form -->
+    <div class="card" style="grid-column: 1 / 2;">
+        <div class="card-header">
+            <h5 class="card-title">
+                <i class="fas fa-magic"></i> Run Prediction
+            </h5>
+        </div>
+        <div class="card-body">
+            <form action="/predict-ui" method="post" id="predictionForm">
+                
+                <!-- Demographics -->
+                <div class="form-section">
+                    <span class="form-section-title">Demographics</span>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Gender</label>
+                            <select name="gender" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Senior Citizen</label>
+                            <select name="SeniorCitizen" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Partner</label>
+                            <select name="Partner" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Dependents</label>
+                            <select name="Dependents" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Tenure (months)</label>
+                            <input type="number" name="tenure" class="form-control" min="0" max="100" value="12" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charges -->
+                <div class="form-section">
+                    <span class="form-section-title">Charges</span>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Monthly Charges</label>
+                            <input type="number" name="MonthlyCharges" class="form-control" min="0" step="0.01" value="65.00" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Total Charges</label>
+                            <input type="number" name="TotalCharges" class="form-control" min="0" step="0.01" value="780.00" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div class="form-section">
+                    <span class="form-section-title">Services</span>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Phone Service</label>
+                            <select name="PhoneService" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Multiple Lines</label>
+                            <select name="MultipleLines" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No phone service">No phone service</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internet Services -->
+                <div class="form-section">
+                    <span class="form-section-title">Internet Services</span>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Internet Service</label>
+                            <select name="InternetService" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Fiber optic">Fiber optic</option>
+                                <option value="DSL">DSL</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Online Security</label>
+                            <select name="OnlineSecurity" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Online Backup</label>
+                            <select name="OnlineBackup" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Device Protection</label>
+                            <select name="DeviceProtection" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Tech Support</label>
+                            <select name="TechSupport" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Streaming TV</label>
+                            <select name="StreamingTV" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Streaming Movies</label>
+                            <select name="StreamingMovies" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                                <option value="No internet service">No internet service</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contract & Billing -->
+                <div class="form-section">
+                    <span class="form-section-title">Contract & Billing</span>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Contract</label>
+                            <select name="Contract" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Month-to-month">Month-to-month</option>
+                                <option value="One year">One year</option>
+                                <option value="Two year">Two year</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Paperless Billing</label>
+                            <select name="PaperlessBilling" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row-cols">
+                        <div>
+                            <label class="form-label">Payment Method</label>
+                            <select name="PaymentMethod" class="form-select" required>
+                                <option value="">Select</option>
+                                <option value="Electronic check">Electronic check</option>
+                                <option value="Mailed check">Mailed check</option>
+                                <option value="Bank transfer (automatic)">Bank transfer</option>
+                                <option value="Credit card (automatic)">Credit card</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-predict">
+                    <i class="fas fa-bolt"></i> Predict Churn
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right: Quick Stats & Model Info -->
+    <div style="grid-column: 2 / -1; display: grid; grid-template-rows: auto auto auto; gap: 2rem;">
+        <!-- Feature Importance Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-chart-bar"></i> Feature Importance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="importanceChart"></canvas>
+                </div>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 1rem;">
+                    Key factors influencing churn predictions based on the trained XGBoost model.
+                </p>
+            </div>
+        </div>
+
+        <!-- Prediction Result Card (Hidden by default) -->
+        <div class="card hidden" id="resultCard">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-check-circle"></i> Latest Prediction
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="resultContent" style="display: none;">
+                    <!-- Result will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Information -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-brain"></i> Model Information
+                </h5>
+            </div>
+            <div class="card-body" style="font-size: 0.95rem;">
+                <div style="margin-bottom: 1rem;">
+                    <strong>Algorithm:</strong> <span style="color: #666;">XGBoost Classifier</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Task:</strong> <span style="color: #666;">Binary Classification</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Dataset:</strong> <span style="color: #666;">Telecom Customer Churn</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Records:</strong> <span style="color: #666;">7,043</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <strong>Features:</strong> <span style="color: #666;">19</span>
+                </div>
+                <div style="padding-top: 1rem; border-top: 1px solid #e0e0e0; margin-top: 1rem;">
+                    <div style="background: #e8f8f5; padding: 0.75rem; border-radius: 6px; border-left: 3px solid var(--success-color);">
+                        <strong style="color: var(--success-color); font-size: 0.9rem;">âœ“ Model Accuracy: 81%+</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction History Table (Full Width) -->
+<div class="card" id="historyCard" style="margin-top: 2rem;">
+    <div class="card-header">
+        <h5 class="card-title">
+            <i class="fas fa-history"></i> Prediction History
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table class="table table-hover" style="margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">ID</th>
+                        <th style="width: 15%;">Tenure</th>
+                        <th style="width: 18%;">Monthly Charges</th>
+                        <th style="width: 12%;">Result</th>
+                        <th style="width: 18%;">Probability</th>
+                        <th style="width: 27%;">Time</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #999; padding: 2rem;">
+                            <i class="fas fa-inbox" style="margin-right: 0.5rem;"></i> No predictions yet
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // Dashboard State
+    let predictionHistory = [];
+    let chart = null;
+
+    // Feature Importance Data (placeholder)
+    const featureData = {
+        labels: ['Contract Type', 'Tenure', 'Monthly Charges', 'Tech Support', 'Internet Type', 'Others'],
+        values: [85, 72, 68, 61, 58, 45]
+    };
+
+    // Initialize chart on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeChart();
+        loadHistory();
+    });
+
+    // Initialize Feature Importance Chart
+    function initializeChart() {
+        const ctx = document.getElementById('importanceChart')?.getContext('2d');
+        if (ctx) {
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: featureData.labels,
+                    datasets: [{
+                        label: 'Importance Score',
+                        data: featureData.values,
+                        backgroundColor: [
+                            'rgba(0, 102, 204, 0.95)',
+                            'rgba(0, 102, 204, 0.85)',
+                            'rgba(0, 102, 204, 0.75)',
+                            'rgba(0, 102, 204, 0.65)',
+                            'rgba(0, 102, 204, 0.55)',
+                            'rgba(0, 102, 204, 0.45)',
+                        ],
+                        borderColor: 'rgba(0, 102, 204, 0)',
+                        borderWidth: 0,
+                        borderRadius: 10,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 500
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 26, 26, 0.9)',
+                            padding: 10,
+                            cornerRadius: 4,
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 11 },
+                            titleMarginBottom: 4
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            beginAtZero: true, 
+                            max: 100,
+                            ticks: {
+                                color: '#666666',
+                                font: { size: 10 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#1a1a1a',
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Handle Form Submission
+    document.getElementById('predictionForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const button = document.querySelector('.btn-predict');
+        const originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+        try {
+            const formData = new FormData(e.target);
+            
+            // Make AJAX request to backend
+            const response = await fetch('/predict-ui', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (!response.ok) throw new Error('Prediction failed');
+            const result = await response.json();
+
+            // Display result with animation
+            displayPredictionResult(result);
+
+            // Update KPIs with animation
+            animateKPIUpdate(result);
+
+            // Add to history
+            addToHistory(formData, result);
+
+        } catch (error) {
+            console.error('Error:', error);
+            const errorMsg = document.createElement('div');
+            errorMsg.style.cssText = 'position: fixed; top: 80px; right: 20px; background: #ffebee; border-left: 3px solid #dc3545; color: #dc3545; padding: 1rem; border-radius: 6px; z-index: 10000; font-size: 0.9rem;';
+            errorMsg.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 0.5rem;"></i> Error making prediction. Please try again.';
+            document.body.appendChild(errorMsg);
+            setTimeout(() => errorMsg.remove(), 4000);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    });
+
+    function displayPredictionResult(result) {
+        const card = document.getElementById('resultCard');
+        const content = document.getElementById('resultContent');
+        
+        const probability = parseFloat(result.churn_probability);
+        const probPercent = (probability * 100).toFixed(1);
+        const isChurn = probability > 0.5;
+
+        content.innerHTML = `
+            <div class="result-alert ${isChurn ? 'danger' : 'success'}">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <div class="result-badge ${isChurn ? 'danger' : 'success'}">
+                        <i class="fas ${isChurn ? 'fa-exclamation-circle' : 'fa-check-circle'}" style="margin-right: 0.4rem;"></i>
+                        ${isChurn ? 'HIGH RISK' : 'LOW RISK'}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <p style="color: #666666; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">Churn Probability</p>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: ${isChurn ? '#dc3545' : '#28a745'};">
+                        ${probPercent}%
+                    </div>
+                </div>
+
+                <div class="progress-bar-custom" style="height: 8px; background: #e5e5e5;">
+                    <div class="progress-fill" style="width: ${probPercent}%; background: ${isChurn ? '#dc3545' : '#28a745'};"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #f9f9f9; border-radius: 6px; border-left: 3px solid ${isChurn ? '#dc3545' : '#28a745'};">
+                <strong style="display: flex; align-items: center; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    <i class="fas fa-lightbulb" style="margin-right: 0.5rem; color: ${isChurn ? '#dc3545' : '#28a745'};"></i>
+                    Recommendation
+                </strong>
+                <p style="color: #666666; font-size: 0.85rem; margin: 0; line-height: 1.5;">
+                    ${isChurn 
+                        ? 'High churn risk detected. Consider implementing retention strategies such as personalized offers or dedicated support.'
+                        : 'Low churn risk. Customer demonstrates loyalty. Continue providing excellent service and explore upselling opportunities.'}
+                </p>
+            </div>
+        `;
+
+        content.style.display = 'block';
+        card.classList.remove('hidden');
+        
+        setTimeout(() => {
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 200);
+    }
+
+    function animateKPIUpdate(result) {
+        const totalPred = predictionHistory.length + 1;
+        const avgChurn = calculateAverageChurn();
+        const isChurn = parseFloat(result.churn_probability) > 0.5;
+
+        // Update total predictions
+        const totalElement = document.getElementById('kpiTotal');
+        if (totalElement) {
+            totalElement.textContent = totalPred;
+        }
+
+        // Update avg churn
+        const avgElement = document.getElementById('kpiAvgChurn');
+        if (avgElement) {
+            avgElement.textContent = avgChurn.toFixed(1) + '%';
+        }
+
+        // Update latest
+        const latestElement = document.getElementById('kpiLatest');
+        if (latestElement) {
+            latestElement.textContent = isChurn ? 'HIGH RISK' : 'SAFE';
+        }
+    }
+
+    function animateCounter(element, start, end, duration, isDecimal = false) {
+        const range = end - start;
+        const increment = range / (duration / 16);
+        let current = start;
+
+        const timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                current = end;
+                clearInterval(timer);
+            }
+            element.textContent = isDecimal ? current.toFixed(1) + '%' : Math.round(current);
+        }, 16);
+    }
+
+    function addToHistory(formData, result) {
+        const isChurn = parseFloat(result.churn_probability) > 0.5;
+        const entry = {
+            id: predictionHistory.length + 1,
+            tenure: formData.get('tenure') || '–',
+            charges: '$' + (parseFloat(formData.get('MonthlyCharges')) || 0).toFixed(2),
+            prediction: isChurn ? 'Risk' : 'Safe',
+            probability: (parseFloat(result.churn_probability) * 100).toFixed(1) + '%',
+            timestamp: new Date().toLocaleString()
+        };
+
+        predictionHistory.unshift(entry);
+        renderHistory();
+        saveHistory();
+    }
+
+    function renderHistory() {
+        const tbody = document.getElementById('historyTable');
+        
+        if (predictionHistory.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999999; padding: 1.5rem;"><i class="fas fa-inbox"></i> No predictions yet</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = predictionHistory.slice(0, 10).map((item, idx) => {
+            const isRisk = item.prediction.includes('Risk');
+            return `
+            <tr>
+                <td><small><strong>#${item.id}</strong></small></td>
+                <td><small>${item.tenure} mo.</small></td>
+                <td><small><strong>${item.charges}</strong></small></td>
+                <td><small><span class="history-status-${isRisk ? 'risk' : 'safe'}">${isRisk ? 'Risk' : 'Safe'}</span></small></td>
+                <td><small><strong>${item.probability}</strong></small></td>
+                <td><small style="color: #999999;">${item.timestamp}</small></td>
+            </tr>
+        `}).join('');
+    }
+
+    function calculateAverageChurn() {
+        if (predictionHistory.length === 0) return 0;
+        const sum = predictionHistory.reduce((acc, item) => {
+            const prob = parseFloat(item.probability);
+            return acc + prob;
+        }, 0);
+        return (sum / predictionHistory.length);
+    }
+
+    function saveHistory() {
+        localStorage.setItem('churnHistory', JSON.stringify(predictionHistory));
+    }
+
+    function loadHistory() {
+        const saved = localStorage.getItem('churnHistory');
+        if (saved) {
+            predictionHistory = JSON.parse(saved);
+            renderHistory();
+        }
+    }
+</script>
+
+{% endblock %}

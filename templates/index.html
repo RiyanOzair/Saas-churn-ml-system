@@ -1,0 +1,1475 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .container-main {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #0d0d0d;
+    }
+
+    .page-header {
+        padding: 2rem;
+        background: #1a1a1a;
+        border-bottom: 1px solid #333333;
+        margin: 0 2rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        border: 1px solid #333333;
+        margin-top: 1rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #e4e4e4;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: #b0b0b0;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        margin: 1rem 2rem;
+        width: calc(100% - 4rem);
+        border: 1px solid #333333;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .kpi-card {
+        background: #1a1a1a;
+        border: 1px solid #333333;
+        border-radius: 0;
+        padding: 1.25rem 2rem;
+        text-align: center;
+        border-right: none;
+    }
+
+    .kpi-card:last-child {
+        border-right: 1px solid #333333;
+    }
+
+    .kpi-card:hover {
+        background-color: #252525;
+    }
+
+    .kpi-label {
+        font-size: 0.7rem;
+        color: #787878;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        margin-bottom: 0.75rem;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #00a8cc;
+    }
+
+    .content-section {
+        background: #1a1a1a;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 1rem 2rem;
+        width: calc(100% - 4rem);
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #e4e4e4;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-title i {
+        color: #00a8cc;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .form-section-block {
+        margin-bottom: 2rem;
+        background: #252525;
+        padding: 1.5rem;
+        border-radius: 6px;
+        border: 1px solid #333333;
+    }
+
+    .form-section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #b0b0b0;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-row.single {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-item label {
+        font-weight: 600;
+        color: #e4e4e4;
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+        display: block;
+    }
+
+    .form-control, select {
+        width: 100%;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid #00a8cc;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        background-color: #1a1a1a;
+        color: #00a8cc;
+    }
+
+    .form-control:focus, select:focus {
+        border-color: #00a8cc;
+        box-shadow: 0 0 0 2px rgba(0, 168, 204, 0.15);
+        outline: none;
+        background-color: #1a1a1a;
+    }
+
+    .form-control::placeholder {
+        color: #787878;
+    }
+
+    .btn-predict {
+        background-color: #00a8cc;
+        color: #ffffff;
+        padding: 1rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+        width: 100%;
+        margin-top: 2rem;
+        transition: background-color 0.2s;
+    }
+
+    .btn-predict:hover {
+        background-color: #0088aa;
+    }
+
+    .btn-predict:disabled {
+        background-color: #555555;
+        cursor: not-allowed;
+        color: #999999;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 350px;
+        background: #252525;
+        border-radius: 6px;
+        padding: 1rem;
+        border: 1px solid #333333;
+    }
+
+    .result-card {
+        background: #1a1a1a;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 2rem;
+        margin: 1rem 2rem;
+        width: calc(100% - 4rem);
+    }
+
+    .result-card.hidden {
+        display: none;
+    }
+
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .result-badge.success {
+        background-color: #1a3a2a;
+        color: #51cf66;
+    }
+
+    .result-badge.danger {
+        background-color: #3a1a1a;
+        color: #ff6b6b;
+    }
+
+    .result-probability {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+
+    .result-probability.safe {
+        color: #51cf66;
+    }
+
+    .result-probability.risk {
+        color: #ff6b6b;
+    }
+
+    .progress-bar-custom {
+        width: 100%;
+        height: 8px;
+        background: #333333;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1.5rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.4s ease;
+    }
+
+    .recommendation-box {
+        background: #252525;
+        border-left: 4px solid;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-top: 1.5rem;
+        color: #e4e4e4;
+    }
+
+    .recommendation-box.safe {
+        border-left-color: #51cf66;
+        background: #1a3a2a;
+    }
+
+    .recommendation-box.risk {
+        border-left-color: #ff6b6b;
+        background: #3a1a1a;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .history-table thead {
+        background: #252525;
+        border-bottom: 1px solid #333333;
+    }
+
+    .history-table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #b0b0b0;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.3px;
+    }
+
+    .history-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #333333;
+        color: #e4e4e4;
+    }
+
+    .history-table tbody tr:hover {
+        background: #252525;
+    }
+
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .status-safe {
+        background: #1a3a2a;
+        color: #51cf66;
+    }
+
+    .status-risk {
+        background: #3a1a1a;
+        color: #ff6b6b;
+    }
+
+    .model-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    .model-card {
+        padding: 1rem;
+        background: #252525;
+        border-radius: 6px;
+        border-left: 3px solid #00a8cc;
+    }
+
+    .model-card.highlight {
+        border-left-color: #51cf66;
+    }
+
+    .model-label {
+        font-size: 0.8rem;
+        color: #787878;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .model-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #e4e4e4;
+    }
+
+    .dataset-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: #252525;
+        padding: 1.5rem;
+        border-radius: 6px;
+        border-left: 3px solid #00a8cc;
+        text-align: center;
+    }
+
+    .stat-box.important {
+        border-left-color: #ff6b6b;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: #787878;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #e4e4e4;
+    }
+
+    .feature-columns {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .feature-list {
+        background: #252525;
+        padding: 1.5rem;
+        border-radius: 6px;
+    }
+
+    .feature-list-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #e4e4e4;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .feature-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #333333;
+        font-size: 0.85rem;
+        color: #b0b0b0;
+    }
+
+    .feature-item:last-child {
+        border-bottom: none;
+    }
+
+    .feature-item strong {
+        color: #e4e4e4;
+        font-weight: 600;
+    }
+
+    .data-quality {
+        background: #252525;
+        padding: 1.5rem;
+        border-radius: 6px;
+        margin-bottom: 2rem;
+    }
+
+    .quality-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #333333;
+        font-size: 0.9rem;
+    }
+
+    .quality-item:last-child {
+        border-bottom: none;
+    }
+
+    .quality-label {
+        color: #b0b0b0;
+        font-weight: 500;
+    }
+
+    .quality-value {
+        color: #e4e4e4;
+        font-weight: 600;
+    }
+
+    .download-section {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #00a8cc;
+        color: #ffffff;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .btn-download:hover {
+        background-color: #0088aa;
+    }
+
+    .btn-download.secondary {
+        background-color: #555555;
+        color: #e4e4e4;
+    }
+
+    .btn-download.secondary:hover {
+        background-color: #666666;
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+            margin: 1rem;
+            width: calc(100% - 2rem);
+        }
+
+        .kpi-card {
+            padding: 1rem;
+        }
+        
+        .content-section {
+            margin: 1rem;
+            width: calc(100% - 2rem);
+        }
+
+        .result-card {
+            margin: 1rem;
+            width: calc(100% - 2rem);
+        }
+
+        .page-header {
+            margin: 1rem;
+            margin-bottom: 1rem;
+            width: calc(100% - 2rem);
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .model-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dataset-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .feature-columns {
+            grid-template-columns: 1fr;
+        }
+
+        .download-section {
+            flex-direction: column;
+        }
+
+        .btn-download {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+        }
+
+        .content-section {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="container-main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Customer Churn Analytics</h1>
+        <p class="page-subtitle">Predict and analyze customer churn risk using machine learning</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Predictions</div>
+            <div class="kpi-value" id="kpiTotal">0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Risk %</div>
+            <div class="kpi-value" id="kpiAvgChurn">0%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Latest Result</div>
+            <div class="kpi-value" id="kpiLatest">–</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Today</div>
+            <div class="kpi-value" id="kpiToday">0</div>
+        </div>
+    </div>
+
+    <!-- Section 1: Prediction Form  -->
+    <div class="content-section" id="prediction">
+        <h2 class="section-title">
+            <i class="fas fa-wand-magic-sparkles"></i> Make a Prediction
+        </h2>
+        
+        <form id="predictionForm">
+            <div class="form-grid">
+                <!-- Left Column -->
+                <div>
+                    <div class="form-section-block">
+                        <div class="form-section-title">Customer Demographics</div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Gender</label>
+                                <select name="gender" required>
+                                    <option value="">Select...</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Senior Citizen</label>
+                                <select name="SeniorCitizen" required>
+                                    <option value="">Select...</option>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Has Partner</label>
+                                <select name="Partner" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Has Dependents</label>
+                                <select name="Dependents" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-block">
+                        <div class="form-section-title">Account Info</div>
+                        <div class="form-row single">
+                            <div class="form-group-item">
+                                <label>Tenure (months)</label>
+                                <input type="number" name="tenure" min="0" max="100" value="12" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Monthly Charges ($)</label>
+                                <input type="number" name="MonthlyCharges" min="0" step="0.01" value="65.00" required>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Total Charges ($)</label>
+                                <input type="number" name="TotalCharges" min="0" step="0.01" value="780.00" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <div class="form-section-block">
+                        <div class="form-section-title">Services</div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Phone Service</label>
+                                <select name="PhoneService" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Multiple Lines</label>
+                                <select name="MultipleLines" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="No phone service">No service</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-block">
+                        <div class="form-section-title">Internet & Support</div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Internet Type</label>
+                                <select name="InternetService" required>
+                                    <option value="">Select...</option>
+                                    <option value="Fiber optic">Fiber optic</option>
+                                    <option value="DSL">DSL</option>
+                                    <option value="No">None</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Online Security</label>
+                                <select name="OnlineSecurity" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="No internet service">N/A</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Tech Support</label>
+                                <select name="TechSupport" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="No internet service">N/A</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Online Backup</label>
+                                <select name="OnlineBackup" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="No internet service">N/A</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Device Protection</label>
+                                <select name="DeviceProtection" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="No internet service">N/A</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Streaming TV</label>
+                                <select name="StreamingTV" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="No internet service">N/A</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Streaming Movies</label>
+                                <select name="StreamingMovies" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="No internet service">N/A</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Contract Type</label>
+                                <select name="Contract" required>
+                                    <option value="">Select...</option>
+                                    <option value="Month-to-month">Month-to-month</option>
+                                    <option value="One year">1 Year</option>
+                                    <option value="Two year">2 Years</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-block">
+                        <div class="form-section-title">Billing</div>
+                        <div class="form-row">
+                            <div class="form-group-item">
+                                <label>Paperless Billing</label>
+                                <select name="PaperlessBilling" required>
+                                    <option value="">Select...</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group-item">
+                                <label>Payment Method</label>
+                                <select name="PaymentMethod" required>
+                                    <option value="">Select...</option>
+                                    <option value="Electronic check">E-check</option>
+                                    <option value="Mailed check">Mailed check</option>
+                                    <option value="Bank transfer (automatic)">Bank transfer (auto)</option>
+                                    <option value="Credit card (automatic)">Credit card (auto)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-predict">
+                <i class="fas fa-magic"></i> Analyze Churn Risk
+            </button>
+        </form>
+    </div>
+
+    <!-- Section 1B: Batch Excel Predictions -->
+    <div class="content-section" id="batch-prediction">
+        <h2 class="section-title">
+            <i class="fas fa-file-excel"></i> Batch Predictions (Excel)
+        </h2>
+        
+        <div style="background: #252525; padding: 1.5rem; border-radius: 6px; border: 1px solid #333333;">
+            <p style="color: #b0b0b0; margin-bottom: 1rem; font-size: 0.95rem;">
+                Upload an Excel file with customer data to get predictions for multiple customers at once. 
+                The file will be processed and returned with predictions added.
+            </p>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: #e4e4e4; font-weight: 600; margin-bottom: 0.75rem;">Excel File</label>
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="btn-predict" style="flex: 1; margin: 0; background-color: #555555;" onclick="document.getElementById('excelFileInput').click()">
+                        <i class="fas fa-upload"></i> Choose File
+                    </button>
+                    <button type="button" class="btn-predict" style="flex: 1; margin: 0;" id="uploadExcelBtn" disabled>
+                        <i class="fas fa-cloud-upload-alt"></i> Upload & Process
+                    </button>
+                </div>
+                <div id="fileNameDisplay" style="color: #b0b0b0; font-size: 0.85rem; margin-top: 0.5rem;"></div>
+            </div>
+
+            <div style="background: #1a1a1a; padding: 1rem; border-radius: 6px; border: 1px solid #333333;">
+                <p style="color: #b0b0b0; font-size: 0.85rem; margin: 0;">
+                    <strong>Required Excel Columns:</strong><br>
+                    gender, SeniorCitizen, Partner, Dependents, tenure, PhoneService, MultipleLines, 
+                    InternetService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, 
+                    StreamingTV, StreamingMovies, Contract, PaperlessBilling, PaymentMethod, 
+                    MonthlyCharges, TotalCharges
+                </p>
+            </div>
+        </div>
+        
+        <div id="batchProgressContainer" style="display: none; margin-top: 1.5rem; background: #252525; padding: 1.5rem; border-radius: 6px; border: 1px solid #333333;">
+            <div style="color: #b0b0b0; margin-bottom: 0.75rem;">Processing...</div>
+            <div style="width: 100%; height: 6px; background: #1a1a1a; border-radius: 3px; overflow: hidden;">
+                <div id="batchProgressBar" style="width: 0%; height: 100%; background: #00a8cc; transition: width 0.3s;"></div>
+            </div>
+        </div>
+
+        <div id="batchResultContainer" style="display: none; margin-top: 1.5rem; background: #252525; padding: 1.5rem; border-radius: 6px; border: 1px solid #333333;">
+            <div style="color: #51cf66; margin-bottom: 1rem; font-weight: 600;">
+                <i class="fas fa-check-circle"></i> Batch processing complete!
+            </div>
+            <button type="button" class="btn-predict" style="margin: 0;" id="downloadResultsBtn">
+                <i class="fas fa-download"></i> Download Results (Excel)
+            </button>
+        </div>
+    </div>
+
+    <!-- Section 2: Feature Importance Chart -->
+    <div class="content-section" id="features">
+        <h2 class="section-title">
+            <i class="fas fa-chart-bar"></i> Feature Importance
+        </h2>
+        <div class="chart-container">
+            <canvas id="importanceChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Section 3: Prediction Result -->
+    <div class="result-card hidden" id="resultCard">
+        <h2 class="section-title">
+            <i class="fas fa-bullseye"></i> Prediction Result
+        </h2>
+        <div id="resultContent"></div>
+    </div>
+
+    <!-- Section 4: Model Information -->
+    <div class="content-section" id="model-info">
+        <h2 class="section-title">
+            <i class="fas fa-microchip"></i> Model Details
+        </h2>
+        <div class="model-grid">
+            <div class="model-card">
+                <div class="model-label">Algorithm</div>
+                <div class="model-value">XGBoost Classifier</div>
+            </div>
+            <div class="model-card">
+                <div class="model-label">Input Features</div>
+                <div class="model-value">20 Variables</div>
+            </div>
+            <div class="model-card highlight">
+                <div class="model-label">Accuracy</div>
+                <div class="model-value" style="color: #28a745;">81%+</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Prediction History -->
+    <div class="content-section" id="history">
+        <h2 class="section-title">
+            <i class="fas fa-history"></i> Prediction History
+        </h2>
+        <div class="table-wrapper">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">ID</th>
+                        <th style="width: 12%;">Tenure</th>
+                        <th style="width: 15%;">Monthly</th>
+                        <th style="width: 12%;">Result</th>
+                        <th style="width: 15%;">Risk %</th>
+                        <th style="width: 38%;">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: #999999;">
+                            <i class="fas fa-inbox"></i> No predictions yet - run your first analysis above
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Section 6: Dataset Information -->
+    <div class="content-section" id="dataset">
+        <h2 class="section-title">
+            <i class="fas fa-database"></i> Dataset Information
+        </h2>
+        
+        <!-- Dataset Overview Stats -->
+        <div class="dataset-stats">
+            <div class="stat-box">
+                <div class="stat-label">Total Records</div>
+                <div class="stat-value">7,043</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Features</div>
+                <div class="stat-value">20</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">File Size</div>
+                <div class="stat-value">955 KB</div>
+            </div>
+            <div class="stat-box important">
+                <div class="stat-label">Churn Rate</div>
+                <div class="stat-value">26.5%</div>
+            </div>
+        </div>
+
+        <!-- Data Source -->
+        <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 0.75rem;">
+                <i class="fas fa-info-circle" style="color: #0066cc; margin-right: 0.5rem;"></i> Data Source
+            </h3>
+            <p style="color: #666666; margin: 0;">
+                <strong>Telco Customer Churn Dataset</strong> from Kaggle - A comprehensive dataset containing customer account information, 
+                demographics, and service subscriptions from a telecommunications company. This dataset is widely used in machine learning 
+                for binary classification problems and contains real-world churn patterns.
+            </p>
+        </div>
+
+        <!-- Features Information -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 1rem;">
+                <i class="fas fa-cube" style="color: #0066cc; margin-right: 0.5rem;"></i> Feature Categories
+            </h3>
+            <div class="feature-columns">
+                <!-- Demographics -->
+                <div class="feature-list">
+                    <div class="feature-list-title">Demographics (4 features)</div>
+                    <div class="feature-item"><strong>Gender:</strong> Male or Female</div>
+                    <div class="feature-item"><strong>Senior Citizen:</strong> Binary indicator of senior age</div>
+                    <div class="feature-item"><strong>Partner:</strong> Has partner (Yes/No)</div>
+                    <div class="feature-item"><strong>Dependents:</strong> Has dependents (Yes/No)</div>
+                </div>
+
+                <!-- Account Info -->
+                <div class="feature-list">
+                    <div class="feature-list-title">Account Info (3 features)</div>
+                    <div class="feature-item"><strong>Tenure:</strong> Months with company (0-72)</div>
+                    <div class="feature-item"><strong>Monthly Charges:</strong> Monthly bill amount ($)</div>
+                    <div class="feature-item"><strong>Total Charges:</strong> Cumulative charges ($)</div>
+                </div>
+
+                <!-- Services -->
+                <div class="feature-list">
+                    <div class="feature-list-title">Services (3 features)</div>
+                    <div class="feature-item"><strong>Phone Service:</strong> Has phone service (Yes/No)</div>
+                    <div class="feature-item"><strong>Multiple Lines:</strong> Multiple phone lines status</div>
+                    <div class="feature-item"><strong>Internet Service:</strong> DSL, Fiber, or None</div>
+                </div>
+
+                <!-- Internet & Support -->
+                <div class="feature-list">
+                    <div class="feature-list-title">Internet & Support (6 features)</div>
+                    <div class="feature-item"><strong>Online Security:</strong> Subscription status</div>
+                    <div class="feature-item"><strong>Tech Support:</strong> Tech support subscription</div>
+                    <div class="feature-item"><strong>Online Backup:</strong> Cloud backup service</div>
+                    <div class="feature-item"><strong>Device Protection:</strong> Device protection plan</div>
+                    <div class="feature-item"><strong>Streaming TV:</strong> Streaming TV subscription</div>
+                    <div class="feature-item"><strong>Streaming Movies:</strong> Streaming movies subscription</div>
+                </div>
+
+                <!-- Billing -->
+                <div class="feature-list">
+                    <div class="feature-list-title">Billing (2 features)</div>
+                    <div class="feature-item"><strong>Contract Type:</strong> Month-to-month, 1-year, or 2-year</div>
+                    <div class="feature-item"><strong>Paperless Billing:</strong> Paperless option (Yes/No)</div>
+                </div>
+
+                <!-- Target -->
+                <div class="feature-list">
+                    <div class="feature-list-title">Target Variable (1 feature)</div>
+                    <div class="feature-item"><strong>Churn:</strong> Customer churned (Yes/No)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Quality -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 1rem;">
+                <i class="fas fa-check-circle" style="color: #28a745; margin-right: 0.5rem;"></i> Data Quality Metrics
+            </h3>
+            <div class="data-quality">
+                <div class="quality-item">
+                    <span class="quality-label">Missing Values</span>
+                    <span class="quality-value">None (0%)</span>
+                </div>
+                <div class="quality-item">
+                    <span class="quality-label">Duplicate Records</span>
+                    <span class="quality-value">None (0%)</span>
+                </div>
+                <div class="quality-item">
+                    <span class="quality-label">Class Balance</span>
+                    <span class="quality-value">Imbalanced (26.5% churned, 73.5% retained)</span>
+                </div>
+                <div class="quality-item">
+                    <span class="quality-label">Target Variable</span>
+                    <span class="quality-value">2 Classes (Yes/No)</span>
+                </div>
+                <div class="quality-item">
+                    <span class="quality-label">Feature Types</span>
+                    <span class="quality-value">Mixed (Categorical and Numerical)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Section -->
+        <div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 1rem;">
+                <i class="fas fa-download" style="color: #0066cc; margin-right: 0.5rem;"></i> Access Dataset
+            </h3>
+            <div class="download-section">
+                <a href="https://www.kaggle.com/datasets/blastchar/telco-customer-churn" target="_blank" class="btn-download">
+                    <i class="fas fa-external-link-alt"></i> View on Kaggle
+                </a>
+                <button class="btn-download secondary" onclick="downloadDatasetInfo()">
+                    <i class="fas fa-file-csv"></i> Dataset Summary
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    let predictionHistory = [];
+    let chart = null;
+
+    const featureData = {
+        labels: ['Contract Type', 'Tenure', 'Monthly Charges', 'Tech Support', 'Internet Type', 'Online Security'],
+        values: [85, 72, 68, 61, 58, 45]
+    };
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeChart();
+        loadHistory();
+    });
+
+    function initializeChart() {
+        const ctx = document.getElementById('importanceChart')?.getContext('2d');
+        if (!ctx) return;
+
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: featureData.labels,
+                datasets: [{
+                    label: 'Importance Score',
+                    data: featureData.values,
+                    backgroundColor: 'rgba(0, 168, 204, 0.8)',
+                    borderColor: '#00a8cc',
+                    borderWidth: 0,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 400 },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(50, 50, 50, 0.9)',
+                        padding: 10,
+                        cornerRadius: 4,
+                        titleFont: { size: 12 },
+                        bodyFont: { size: 11 },
+                        titleColor: '#e4e4e4',
+                        bodyColor: '#e4e4e4'
+                    }
+                },
+                scales: {
+                    x: { 
+                        beginAtZero: true, 
+                        max: 100,
+                        ticks: { color: '#b0b0b0', font: { size: 11 } },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false }
+                    },
+                    y: {
+                        ticks: { color: '#e4e4e4', font: { size: 11, weight: 'bold' } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // Handle form submission
+    document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const button = e.target.querySelector('.btn-predict');
+        const originalText = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+        try {
+            const formData = new FormData(e.target);
+            
+            // Validate no empty fields
+            for (let [key, value] of formData.entries()) {
+                if (!value || value === '') {
+                    throw new Error(`Field "${key}" is empty. Please fill all fields.`);
+                }
+            }
+            
+            const response = await fetch('/predict-ui', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Server error: ${response.status}`);
+            }
+            
+            const result = await response.json();
+
+            displayResult(result);
+            updateKPIs(result);
+            addToHistory(formData, result);
+
+        } catch (error) {
+            showError('Failed to make prediction: ' + error.message);
+            console.error('Prediction error:', error);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    });
+
+    function displayResult(result) {
+        const card = document.getElementById('resultCard');
+        const content = document.getElementById('resultContent');
+        
+        const probability = parseFloat(result.churn_probability);
+        const probPercent = (probability * 100).toFixed(1);
+        const isRisk = probability > 0.5;
+
+        let html = `
+            <div class="result-badge ${isRisk ? 'danger' : 'success'}">
+                <i class="fas ${isRisk ? 'fa-warning' : 'fa-check'}" style="margin-right: 0.5rem;"></i>
+                ${isRisk ? 'HIGH CHURN RISK' : 'LOW CHURN RISK'}
+            </div>
+
+            <div style="margin-top: 1.5rem; margin-bottom: 0.75rem;">
+                <div style="font-size: 0.85rem; color: #999999; font-weight: 600; text-transform: uppercase;">Churn Probability</div>
+            </div>
+            <div class="result-probability ${isRisk ? 'risk' : 'safe'}">
+                ${probPercent}%
+            </div>
+
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: ${probPercent}%; background: ${isRisk ? '#dc3545' : '#28a745'};"></div>
+            </div>
+
+            <div class="recommendation-box ${isRisk ? 'risk' : 'safe'}">
+                <strong style="display: block; margin-bottom: 0.5rem;">
+                    <i class="fas fa-lightbulb" style="margin-right: 0.5rem;"></i>
+                    ${isRisk ? 'Action Required' : 'Maintain Relationship'}
+                </strong>
+                <p style="margin: 0; font-size: 0.9rem; line-height: 1.5;">
+                    ${isRisk 
+                        ? 'High churn risk detected. Consider proactive retention strategies: special offers, account reviews, or personalized support to prevent customer loss.'
+                        : 'Customer is stable. Focus on maintaining service quality and identifying upsell/cross-sell opportunities to increase lifetime value.'}
+                </p>
+            </div>
+        `;
+
+        content.innerHTML = html;
+        card.classList.remove('hidden');
+        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+    }
+
+    function updateKPIs(result) {
+        const total = predictionHistory.length + 1;
+        const avg = calculateAverageRisk();
+        const isRisk = parseFloat(result.churn_probability) > 0.5;
+
+        document.getElementById('kpiTotal').textContent = total;
+        document.getElementById('kpiAvgChurn').textContent = avg.toFixed(1) + '%';
+        document.getElementById('kpiLatest').textContent = isRisk ? 'HIGH RISK' : 'SAFE';
+        document.getElementById('kpiToday').textContent = getTodayCount();
+    }
+
+    function addToHistory(formData, result) {
+        const isRisk = parseFloat(result.churn_probability) > 0.5;
+        const entry = {
+            id: predictionHistory.length + 1,
+            tenure: formData.get('tenure'),
+            charges: '$' + parseFloat(formData.get('MonthlyCharges')).toFixed(2),
+            prediction: isRisk ? 'Risk' : 'Safe',
+            probability: (parseFloat(result.churn_probability) * 100).toFixed(1) + '%',
+            timestamp: new Date().toLocaleString()
+        };
+
+        predictionHistory.unshift(entry);
+        renderHistory();
+        saveHistory();
+    }
+
+    function renderHistory() {
+        const tbody = document.getElementById('historyTable');
+        
+        if (predictionHistory.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #999999;"><i class="fas fa-inbox"></i> No predictions yet</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = predictionHistory.slice(0, 20).map((item) => `
+            <tr>
+                <td><strong>#${item.id}</strong></td>
+                <td>${item.tenure} mo</td>
+                <td>${item.charges}</td>
+                <td>
+                    <span class="status-badge status-${item.prediction.includes('Risk') ? 'risk' : 'safe'}">
+                        ${item.prediction}
+                    </span>
+                </td>
+                <td><strong>${item.probability}</strong></td>
+                <td style="color: #999999; font-size: 0.9rem;">${item.timestamp}</td>
+            </tr>
+        `).join('');
+    }
+
+    function calculateAverageRisk() {
+        if (predictionHistory.length === 0) return 0;
+        const sum = predictionHistory.reduce((acc, item) => acc + parseFloat(item.probability), 0);
+        return sum / predictionHistory.length;
+    }
+
+    function getTodayCount() {
+        const today = new Date().toDateString();
+        return predictionHistory.filter(item => new Date(item.timestamp).toDateString() === today).length;
+    }
+
+    function saveHistory() {
+        localStorage.setItem('churnHistory', JSON.stringify(predictionHistory));
+    }
+
+    function loadHistory() {
+        const saved = localStorage.getItem('churnHistory');
+        if (saved) {
+            try {
+                predictionHistory = JSON.parse(saved);
+                renderHistory();
+                
+                if (predictionHistory.length > 0) {
+                    document.getElementById('kpiTotal').textContent = predictionHistory.length;
+                    document.getElementById('kpiAvgChurn').textContent = calculateAverageRisk().toFixed(1) + '%';
+                    document.getElementById('kpiLatest').textContent = predictionHistory[0].prediction === 'Risk' ? 'HIGH RISK' : 'SAFE';
+                    document.getElementById('kpiToday').textContent = getTodayCount();
+                }
+            } catch (e) {
+                console.log('Error loading history', e);
+            }
+        }
+    }
+
+    function showError(msg) {
+        const div = document.createElement('div');
+        div.style.cssText = 'position: fixed; top: 90px; right: 20px; background: #ffebee; border-left: 4px solid #dc3545; color: #dc3545; padding: 1rem 1.5rem; border-radius: 6px; z-index: 10000; font-weight: 600; max-width: 400px;';
+        div.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 0.5rem;"></i> ' + msg;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 5000);
+    }
+
+    function downloadDatasetInfo() {
+        const csv = `Dataset Overview Report
+Generated: ${new Date().toLocaleString()}
+
+=== SUMMARY ===
+Total Records,7043
+Total Features,20
+File Size (KB),955
+Churn Rate (%),26.5
+
+=== FEATURE CATEGORIES ===
+Demographics,4
+Account Info,3
+Services,3
+Internet & Support,6
+Billing,2
+Target Variable,1
+
+=== DATA QUALITY ===
+Missing Values,None
+Duplicate Records,None
+Class Balance,Imbalanced (26.5% churn)
+Feature Types,Mixed (Categorical + Numerical)
+
+=== FEATURE LIST ===
+Demographics:
+- Gender
+- Senior Citizen
+- Partner
+- Dependents
+
+Account Info:
+- Tenure (months)
+- Monthly Charges
+- Total Charges
+
+Services:
+- Phone Service
+- Multiple Lines
+- Internet Service
+
+Internet & Support:
+- Online Security
+- Tech Support
+- Online Backup
+- Device Protection
+- Streaming TV
+- Streaming Movies
+
+Billing:
+- Contract Type
+- Paperless Billing
+- Payment Method
+
+Target:
+- Churn (Yes/No)
+`;
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Dataset_Summary_${new Date().getTime()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
+
+    // Batch Excel Upload Handlers
+    let selectedFile = null;
+    let batchResults = null;
+
+    document.getElementById('excelFileInput').addEventListener('change', (e) => {
+        selectedFile = e.target.files[0];
+        const fileDisplay = document.getElementById('fileNameDisplay');
+        
+        if (selectedFile) {
+            fileDisplay.innerHTML = `<i class="fas fa-file-excel"></i> ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(2)} KB)`;
+            document.getElementById('uploadExcelBtn').disabled = false;
+        } else {
+            fileDisplay.innerHTML = '';
+            document.getElementById('uploadExcelBtn').disabled = true;
+        }
+    });
+
+    document.getElementById('uploadExcelBtn').addEventListener('click', async () => {
+        if (!selectedFile) {
+            showError('Please select a file');
+            return;
+        }
+
+        const button = document.getElementById('uploadExcelBtn');
+        const originalText = button.innerHTML;
+        button.disabled = true;
+
+        try {
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            // Show progress
+            document.getElementById('batchProgressContainer').style.display = 'block';
+            document.getElementById('batchResultContainer').style.display = 'none';
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress = Math.min(progress + Math.random() * 30, 90);
+                document.getElementById('batchProgressBar').style.width = progress + '%';
+            }, 200);
+
+            const response = await fetch('/predict-excel', {
+                method: 'POST',
+                body: formData
+            });
+
+            clearInterval(progressInterval);
+            document.getElementById('batchProgressBar').style.width = '100%';
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Server error: ${response.status}`);
+            }
+
+            // Get file blob
+            batchResults = await response.blob();
+
+            // Show success
+            setTimeout(() => {
+                document.getElementById('batchProgressContainer').style.display = 'none';
+                document.getElementById('batchResultContainer').style.display = 'block';
+            }, 300);
+
+        } catch (error) {
+            document.getElementById('batchProgressContainer').style.display = 'none';
+            showError('Batch upload failed: ' + error.message);
+            console.error('Batch upload error:', error);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    });
+
+    document.getElementById('downloadResultsBtn').addEventListener('click', () => {
+        if (!batchResults) return;
+
+        const url = window.URL.createObjectURL(batchResults);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `predictions_${new Date().getTime()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    });
+</script>
+
+{% endblock %}

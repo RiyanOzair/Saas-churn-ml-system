@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Churn Predictor - Analytics Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --primary-color: #00a8cc;
+            --text-primary: #e4e4e4;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #787878;
+            --border-color: #333333;
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #0d0d0d;
+            --danger-color: #ff6b6b;
+            --success-color: #51cf66;
+            --sidebar-width: 240px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-secondary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color) !important;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            min-height: calc(100vh - 60px);
+            position: fixed;
+            left: 0;
+            top: 60px;
+            overflow-y: auto;
+            padding: 1.5rem 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            padding: 0 1rem;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.65rem 1rem;
+            margin: 0.25rem 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .sidebar-item.active {
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .sidebar-item i {
+            width: 18px;
+            margin-right: 0.75rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        /* Cards */
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .card:hover {
+            border-color: #d0d0d0;
+        }
+
+        .card-header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* Form Styling */
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.9rem;
+            background-color: var(--bg-primary);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            color: var(--text-primary);
+            width: 100%;
+        }
+
+        .form-control:hover, .form-select:hover {
+            border-color: #d0d0d0;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+            outline: none;
+        }
+
+        .form-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-row-cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Buttons */
+        .btn-predict {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+            width: 100%;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .btn-predict:hover {
+            background-color: #0052a3;
+        }
+
+        .btn-predict:active {
+            opacity: 0.9;
+        }
+
+        .btn-predict:disabled {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+        }
+
+        /* Result Cards */
+        .result-alert {
+            padding: 1.25rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 3px solid;
+        }
+
+        .result-alert.success {
+            background-color: #f0f8f5;
+            border-left-color: var(--success-color);
+        }
+
+        .result-alert.danger {
+            background-color: #fef5f5;
+            border-left-color: var(--danger-color);
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 0.75rem;
+        }
+
+        .result-badge.success {
+            background-color: #e8f5e9;
+            color: var(--success-color);
+        }
+
+        .result-badge.danger {
+            background-color: #ffebee;
+            color: var(--danger-color);
+        }
+
+        .progress-bar-custom {
+            width: 100%;
+            height: 6px;
+            background: #e5e5e5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            font-size: 0.9rem;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            margin-left: var(--sidebar-width);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+            }
+
+            footer {
+                margin-left: 200px;
+            }
+
+            .form-row-cols {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                left: -100%;
+                transition: left 0.2s ease;
+                z-index: 999;
+                top: 60px;
+                max-height: calc(100vh - 60px);
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            footer {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container-fluid">
+            <button class="btn btn-link d-md-none" id="sidebarToggle" style="padding: 0;">
+                <i class="fas fa-bars" style="color: var(--primary-color); font-size: 1.3rem;"></i>
+            </button>
+            <span class="navbar-brand">
+                <i class="fas fa-chart-line"></i> Churn Predictor
+            </span>
+        </div>
+    </nav>
+
+    <div style="display: flex;">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Navigation</div>
+                <a href="/" class="sidebar-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#history" class="sidebar-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Predictions</div>
+                <a href="#batch-prediction" class="sidebar-item">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Batch Upload</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Model</div>
+                <a href="#model-info" class="sidebar-item">
+                    <i class="fas fa-microchip"></i>
+                    <span>Model Info</span>
+                </a>
+                <a href="#dataset" class="sidebar-item">
+                    <i class="fas fa-database"></i>
+                    <span>Dataset</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Customer Churn Analytics | Built with FastAPI + Machine Learning</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar toggle for mobile
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        });
+
+        // Navigation: Handle smooth scroll and active state
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                
+                // Close sidebar on mobile after click
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('show');
+                }
+                
+                // Handle hash navigation with smooth scroll
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = href.substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        // Remove active class from all items
+                        document.querySelectorAll('.sidebar-item').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        
+                        // Add active class to clicked item
+                        this.classList.add('active');
+                        
+                        // Smooth scroll to target
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else if (href === '/') {
+                    // Dashboard link - scroll to top
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Set Dashboard as active
+                    document.querySelectorAll('.sidebar-item').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Intersection Observer to highlight active section while scrolling
+        const observerOptions = {
+            root: null,
+            rootMargin: '-50% 0px -50% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionId = entry.target.id;
+                    
+                    // Remove active from all items
+                    document.querySelectorAll('.sidebar-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Add active to matching item
+                    if (sectionId === 'prediction' || sectionId === '') {
+                        document.querySelector('a[href="/"]').classList.add('active');
+                    } else {
+                        const matchingItem = document.querySelector(`a[href="#${sectionId}"]`);
+                        if (matchingItem) {
+                            matchingItem.classList.add('active');
+                        }
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe all navigable sections
+        const sections = document.querySelectorAll('[id="prediction"], [id="features"], [id="model-info"], [id="history"]');
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Set initial active state
+        window.addEventListener('load', () => {
+            document.querySelector('a[href="/"]').classList.add('active');
+        });
+    </script>
+</body>
+</html>
