@@ -4,8 +4,18 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import traceback
+import os
+from dotenv import load_dotenv
 
 from app.prediction_api import router
+
+# Load environment variables
+load_dotenv()
+
+HOST = os.getenv("HOST", "0.0.0.0")
+PORT = int(os.getenv("PORT", 8000))
+LOG_LEVEL = os.getenv("LOG_LEVEL", "info")
+PYTHON_ENV = os.getenv("PYTHON_ENV", "development")
 
 
 app = FastAPI(
